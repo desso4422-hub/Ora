@@ -23,11 +23,9 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
-## Navigation & Routing
+## Navigation
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+Ora n'utilise volontairement pas de librairie de navigation : `App.tsx` gère un petit état d'écran (Jour, Stats, Historique, Réglages, Gestion) et une feuille modale. Logique pure dans `src/dates.ts`, `src/stats.ts`, `src/backup.ts` (testée par `npm test`), constantes visuelles dans `src/theme.ts`.
 
 ## Building with EAS
 

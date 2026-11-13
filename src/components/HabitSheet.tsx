@@ -1,9 +1,10 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useEffect, useState } from 'react';
 import {
-  Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
+  KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { confirm } from '../confirm';
 import { DAY_FULL, DAY_LETTER, WEEK_ORDER } from '../dates';
 import type { HabitInput } from '../store';
 import type { Habit } from '../types';
@@ -61,13 +62,11 @@ export function HabitSheet({ visible, habit, onClose, onSave, onDelete }: Props)
 
   const confirmDelete = () => {
     if (!habit) return;
-    Alert.alert(
+    confirm(
       'Supprimer cette habitude ?',
       `« ${habit.name} » et tout son historique seront effacés. Cette action est définitive.`,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Supprimer', style: 'destructive', onPress: () => onDelete(habit.id) },
-      ],
+      'Supprimer',
+      () => onDelete(habit.id),
     );
   };
 
@@ -90,7 +89,7 @@ export function HabitSheet({ visible, habit, onClose, onSave, onDelete }: Props)
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <Text style={[type.overline, styles.section]} nativeID="label-nom">Emoji et nom</Text>
+            <Text style={[type.overline, styles.section]}>Emoji et nom</Text>
             <View style={styles.nameRow}>
               <Pressable
                 onPress={() => setPicker((p) => !p)}
@@ -109,7 +108,6 @@ export function HabitSheet({ visible, habit, onClose, onSave, onDelete }: Props)
                 style={styles.input}
                 maxLength={40}
                 accessibilityLabel="Nom de l'habitude"
-                accessibilityLabelledBy="label-nom"
                 returnKeyType="done"
               />
             </View>

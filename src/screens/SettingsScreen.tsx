@@ -1,6 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useEffect, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { confirm, notify } from '../confirm';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { exportBackup, pickBackup } from '../backupIO';
 import { hasPermission, requestPermission, rescheduleAll } from '../notifications';
@@ -19,14 +20,14 @@ export function SettingsScreen({ onBack, onManage, bottomPad }: Props) {
 
   const onNotifications = async () => {
     if (Platform.OS === 'web') {
-      Alert.alert('Notifications', "Les rappels ne fonctionnent que sur l'application Android.");
+      notify('Notifications', "Les rappels ne fonctionnent que sur l'application Android.");
       return;
     }
     const ok = await requestPermission();
     setGranted(ok);
     if (ok) {
       await rescheduleAll(habits);
-      Alert.alert('Rappels autorisés', 'Tes rappels seront envoyés aux heures choisies.');
+      notify('Rappels autorisés', 'Tes rappels seront envoyés aux heures choisies.');
     } else {
       Alert.alert(
         'Autorisation refusée',
@@ -43,7 +44,7 @@ export function SettingsScreen({ onBack, onManage, bottomPad }: Props) {
     try {
       await exportBackup(data);
     } catch (e) {
-      Alert.alert('Export impossible', e instanceof Error ? e.message : "Une erreur s'est produite.");
+      notify('Export impossible', e instanceof Error ? e.message : "Une erreur s'est produite.");
     }
   };
 
@@ -52,27 +53,21 @@ export function SettingsScreen({ onBack, onManage, bottomPad }: Props) {
       const res = await pickBackup();
       if (!res) return;
       if (!res.ok) {
-        Alert.alert('Fichier invalide', res.error);
+        notify('Fichier invalide', res.error);
         return;
       }
       const n = res.data.habits.length;
-      Alert.alert(
+      confirm(
         'Remplacer tes données ?',
         `Ce fichier contient ${n} ${n > 1 ? 'habitudes' : 'habitude'}. Tes habitudes et ton historique actuels seront entièrement remplacés.`,
-        [
-          { text: 'Annuler', style: 'cancel' },
-          {
-            text: 'Remplacer',
-            style: 'destructive',
-            onPress: () => {
-              replaceAll(res.data);
-              Alert.alert('Import terminé', 'Tes données ont été restaurées.');
-            },
-          },
-        ],
+        'Remplacer',
+        () => {
+          replaceAll(res.data);
+          notify('Import terminé', 'Tes données ont été restaurées.');
+        },
       );
     } catch {
-      Alert.alert('Import impossible', "Le fichier n'a pas pu être ouvert.");
+      notify('Import impossible', "Le fichier n'a pas pu être ouvert.");
     }
   };
 

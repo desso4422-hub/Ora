@@ -1,4 +1,5 @@
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { confirm } from '../confirm';
 import { IconButton } from '../components/IconButton';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { daysSummary } from '../components/daysSummary';
@@ -12,13 +13,11 @@ export function ManageScreen({ onBack, onEdit, bottomPad }: Props) {
   const { habits, moveHabit, deleteHabit } = useStore();
 
   const confirmDelete = (h: Habit) =>
-    Alert.alert(
+    confirm(
       'Supprimer cette habitude ?',
       `« ${h.name} » et tout son historique seront effacés. Cette action est définitive.`,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Supprimer', style: 'destructive', onPress: () => deleteHabit(h.id) },
-      ],
+      'Supprimer',
+      () => deleteHabit(h.id),
     );
 
   return (
