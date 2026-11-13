@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ora",
-    "slug": "ora",
+    "slug": "desso4422",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,7 +20,9 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["android.permission.POST_NOTIFICATIONS"],
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -35,6 +37,12 @@
         }
       ],
       "expo-document-picker"
-    ]
+    ],
+    "owner": "desso4422s-team",
+    "extra": {
+      "eas": {
+        "projectId": "7e4965c9-6115-431d-ae03-f02b7402829b"
+      }
+    }
   }
 }
