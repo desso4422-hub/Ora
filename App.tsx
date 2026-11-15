@@ -25,16 +25,13 @@ import { colors, sizes } from './src/theme';
 configureNotifications();
 
 type Screen =
-  | { name: 'day' }
-  | { name: 'stats' }
-  | { name: 'history'; habitId: string | null }
-  | { name: 'settings' }
-  | { name: 'manage' };
+  | { name: 'day' | 'stats' | 'settings' | 'manage' }
+  | { name: 'history'; habitId: string | null; fromStats: boolean };
 
 /** Écran parent pour le bouton Retour d'Android. */
 const parentOf = (s: Screen): Screen | null => {
   switch (s.name) {
-    case 'history': return { name: 'stats' };
+    case 'history': return s.fromStats ? { name: 'stats' } : { name: 'day' };
     case 'manage': return { name: 'settings' };
     case 'stats':
     case 'settings': return { name: 'day' };
@@ -79,7 +76,10 @@ function Root() {
   if (!ready) return <View style={styles.root} />;
 
   const bottomPad = sizes.tabBarH + insets.bottom;
-  const tab: Tab | null = screen.name === 'day' ? 'day' : screen.name === 'stats' || screen.name === 'history' ? 'stats' : null;
+  const tab: Tab =
+    screen.name === 'manage' ? 'settings'
+      : screen.name === 'history' ? (screen.fromStats ? 'stats' : 'history')
+        : screen.name;
 
   return (
     <View style={styles.root}>
@@ -90,18 +90,21 @@ function Root() {
             selected={selected}
             onSelect={onSelect}
             onEdit={openEdit}
-            onSettings={() => setScreen({ name: 'settings' })}
             bottomPad={bottomPad}
           />
         )}
         {screen.name === 'stats' && (
-          <StatsScreen onOpenHistory={(habitId) => setScreen({ name: 'history', habitId })} bottomPad={bottomPad} />
+          <StatsScreen onOpenHistory={(habitId) => setScreen({ name: 'history', habitId, fromStats: true })} bottomPad={bottomPad} />
         )}
         {screen.name === 'history' && (
-          <HistoryScreen focusId={screen.habitId} onBack={() => setScreen({ name: 'stats' })} bottomPad={bottomPad} />
+          <HistoryScreen
+            focusId={screen.habitId}
+            onBack={screen.fromStats ? () => setScreen({ name: 'stats' }) : undefined}
+            bottomPad={bottomPad}
+          />
         )}
         {screen.name === 'settings' && (
-          <SettingsScreen onBack={() => setScreen({ name: 'day' })} onManage={() => setScreen({ name: 'manage' })} bottomPad={bottomPad} />
+          <SettingsScreen onManage={() => setScreen({ name: 'manage' })} bottomPad={bottomPad} />
         )}
         {screen.name === 'manage' && (
           <ManageScreen onBack={() => setScreen({ name: 'settings' })} onEdit={openEdit} bottomPad={bottomPad} />
@@ -112,7 +115,7 @@ function Root() {
           active={tab}
           onTab={(t) => {
             if (t === 'day') setSelected(today);
-            setScreen(t === 'day' ? { name: 'day' } : { name: 'stats' });
+            setScreen(t === 'history' ? { name: 'history', habitId: null, fromStats: false } : { name: t });
           }}
           onAdd={() => setSheet({ open: true, habit: null })}
         />

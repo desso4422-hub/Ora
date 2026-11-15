@@ -118,6 +118,23 @@ export const type = {
   habitName: { fontFamily: fonts.bodySemi, fontSize: 16, color: colors.text },
 } as const;
 
+export type Tone = { main: string; from: string; to: string; halo: string };
+
+/** Teintes de la pastille de score selon la progression. */
+export const scoreTones = {
+  green: { main: colors.green, from: colors.greenBgFrom, to: colors.greenPillTo, halo: colors.greenHalo },
+  amber: { main: colors.amber, from: '#2A2110', to: '#1A140A', halo: 'rgba(245,165,36,0.28)' },
+  red: { main: colors.red, from: colors.redBgFrom, to: colors.redBgTo, halo: 'rgba(255,92,92,0.28)' },
+  neutral: { main: colors.textSecondary, from: colors.card, to: colors.bar, halo: 'rgba(0,0,0,0)' },
+} satisfies Record<string, Tone>;
+
+export function scoreTone(pct: number, empty: boolean): Tone {
+  if (empty) return scoreTones.neutral;
+  if (pct >= 70) return scoreTones.green;
+  if (pct >= 40) return scoreTones.amber;
+  return scoreTones.red;
+}
+
 /** Seuils : >= 70 % vert, 40–69 % ambre, < 40 % rouge. */
 export function rateColor(pct: number): string {
   if (pct >= 70) return colors.green;

@@ -163,3 +163,19 @@ export function cellState(habit: Habit, logs: Logs, key: string, today: string):
   if (isDone(logs, habit.id, key)) return 'done';
   return key === today ? 'off' : 'missed';
 }
+
+export type DayLevel = 'high' | 'mid' | 'low' | 'off';
+
+/**
+ * Niveau d'une journée pour la vue d'ensemble : >= 70 % high, 40–69 % mid, < 40 % low.
+ * Futur ou rien de prévu → off. Aujourd'hui sans rien de coché → off (la journée n'est pas finie).
+ */
+export function dayLevel(habits: Habit[], logs: Logs, key: string, today: string): DayLevel {
+  if (key > today) return 'off';
+  const s = dayScore(habits, logs, key);
+  if (s.scheduled === 0) return 'off';
+  if (key === today && s.done === 0) return 'off';
+  if (s.pct >= 70) return 'high';
+  if (s.pct >= 40) return 'mid';
+  return 'low';
+}

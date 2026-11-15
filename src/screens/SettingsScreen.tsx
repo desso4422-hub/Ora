@@ -8,7 +8,7 @@ import { hasPermission, requestPermission, rescheduleAll } from '../notification
 import { useStore } from '../store';
 import { colors, fonts, radius, sizes } from '../theme';
 
-type Props = { onBack: () => void; onManage: () => void; bottomPad: number };
+type Props = { onBack?: () => void; onManage: () => void; bottomPad: number };
 
 export function SettingsScreen({ onBack, onManage, bottomPad }: Props) {
   const { data, habits, replaceAll } = useStore();

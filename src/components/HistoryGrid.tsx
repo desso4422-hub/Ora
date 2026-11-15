@@ -1,34 +1,24 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { addDays, DAY_LETTER, startOfWeek, WEEK_ORDER } from '../dates';
-import { cellState, type CellState } from '../stats';
-import type { Habit, Logs } from '../types';
 import { colors, fonts, radius, sizes } from '../theme';
 
-const cellColor: Record<CellState, string> = { done: colors.green, missed: colors.historyRed, off: colors.notPlanned };
-
-type Props = { habit: Habit; logs: Logs; today: string; cell: number };
+type Props = {
+  today: string;
+  cell: number;
+  /** Couleur de la case d'un jour. */
+  colorOf: (key: string) => string;
+  accessibilityLabel: string;
+};
 
 /** 16 colonnes (semaines, lun → dim) × 7 lignes ; la dernière colonne est la semaine en cours. */
-export function HistoryGrid({ habit, logs, today, cell }: Props) {
+export function HistoryGrid({ today, cell, colorOf, accessibilityLabel }: Props) {
   const gap = sizes.historyGap;
   const first = addDays(startOfWeek(today), -7 * (sizes.historyWeeks - 1));
-  let done = 0;
-  let missed = 0;
   const cols = Array.from({ length: sizes.historyWeeks }, (_, w) =>
-    Array.from({ length: 7 }, (_, d) => {
-      const key = addDays(first, w * 7 + d);
-      const s = cellState(habit, logs, key, today);
-      if (s === 'done') done++;
-      if (s === 'missed') missed++;
-      return { key, s };
-    }),
+    Array.from({ length: 7 }, (_, d) => addDays(first, w * 7 + d)),
   );
   return (
-    <View
-      style={styles.row}
-      accessible
-      accessibilityLabel={`Grille des 16 dernières semaines : ${done} jours faits, ${missed} jours ratés`}
-    >
+    <View style={styles.row} accessible accessibilityLabel={accessibilityLabel}>
       <View style={{ gap, width: 10 }}>
         {WEEK_ORDER.map((d, i) => (
           <Text key={i} style={[styles.letter, { height: cell, lineHeight: cell }]}>{DAY_LETTER[d]}</Text>
@@ -37,8 +27,8 @@ export function HistoryGrid({ habit, logs, today, cell }: Props) {
       <View style={{ flexDirection: 'row', gap }}>
         {cols.map((col, i) => (
           <View key={i} style={{ gap }}>
-            {col.map(({ key, s }) => (
-              <View key={key} style={{ width: cell, height: cell, borderRadius: radius.cell, backgroundColor: cellColor[s] }} />
+            {col.map((key) => (
+              <View key={key} style={{ width: cell, height: cell, borderRadius: radius.cell, backgroundColor: colorOf(key) }} />
             ))}
           </View>
         ))}
@@ -47,8 +37,7 @@ export function HistoryGrid({ habit, logs, today, cell }: Props) {
   );
 }
 
-export function HistoryLegend() {
-  const items: [string, string][] = [[colors.green, 'Fait'], [colors.historyRed, 'Raté'], [colors.notPlanned, 'Non prévu']];
+export function Legend({ items }: { items: [string, string][] }) {
   return (
     <View style={styles.legend}>
       {items.map(([c, l]) => (
@@ -64,7 +53,7 @@ export function HistoryLegend() {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8 },
   letter: { fontFamily: fonts.body, fontSize: 9, color: colors.textSecondary },
-  legend: { flexDirection: 'row', gap: 16, alignItems: 'center' },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 8, alignItems: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendText: { fontFamily: fonts.body, fontSize: 11, color: colors.textSecondary },
 });

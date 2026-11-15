@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { addDays, isValidKey, startOfWeek, toKey, weekday, weekKeys } from '../src/dates';
 import {
-  bestStreak, cellState, currentStreak, dayCounts, dayScore, dayStatus, daysSinceStart,
+  bestStreak, cellState, dayLevel, currentStreak, dayCounts, dayScore, dayStatus, daysSinceStart,
   globalRate, isOverdue, isScheduled, rate30,
 } from '../src/stats';
 import { parseBackup, validateBackup } from '../src/backup';
@@ -175,4 +175,19 @@ test('import : fichiers invalides', () => {
   }
   const notJson = parseBackup('{ pas du json');
   assert.ok(!notJson.ok);
+});
+
+test('niveau du jour (vue d\'ensemble)', () => {
+  const hs = ['a', 'b', 'c', 'd'].map((id) => habit({ id }));
+  const done = (n: number, key: string): Logs =>
+    Object.fromEntries(hs.slice(0, n).map((h) => [h.id, { [key]: true as const }]));
+  const Y = '2026-11-12';
+  assert.equal(dayLevel(hs, done(3, Y), Y, TODAY), 'high'); // 75 %
+  assert.equal(dayLevel(hs, done(2, Y), Y, TODAY), 'mid'); // 50 %
+  assert.equal(dayLevel(hs, done(1, Y), Y, TODAY), 'low'); // 25 %
+  assert.equal(dayLevel(hs, {}, Y, TODAY), 'low'); // 0 % un jour passé
+  assert.equal(dayLevel(hs, {}, TODAY, TODAY), 'off'); // aujourd'hui pas commencé
+  assert.equal(dayLevel(hs, done(1, TODAY), TODAY, TODAY), 'low');
+  assert.equal(dayLevel(hs, {}, '2026-11-14', TODAY), 'off'); // futur
+  assert.equal(dayLevel(hs, {}, '2026-09-01', TODAY), 'off'); // avant création
 });

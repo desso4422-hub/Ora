@@ -3,15 +3,18 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts, sizes } from '../theme';
 
-export type Tab = 'day' | 'stats';
+export type Tab = 'day' | 'stats' | 'history' | 'settings';
 
-type Props = { active: Tab | null; onTab: (t: Tab) => void; onAdd: () => void };
+type IconName = React.ComponentProps<typeof Feather>['name'];
+
+type Props = { active: Tab; onTab: (t: Tab) => void; onAdd: () => void };
 
 export function TabBar({ active, onTab, onAdd }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.bar, { height: sizes.tabBarH + insets.bottom, paddingBottom: 8 + insets.bottom }]}>
       <TabItem icon="home" label="Jour" active={active === 'day'} onPress={() => onTab('day')} />
+      <TabItem icon="bar-chart-2" label="Stats" active={active === 'stats'} onPress={() => onTab('stats')} />
       <View style={styles.fabRing}>
         <Pressable
           onPress={onAdd}
@@ -22,12 +25,13 @@ export function TabBar({ active, onTab, onAdd }: Props) {
           <Feather name="plus" size={26} color={colors.onGreen} />
         </Pressable>
       </View>
-      <TabItem icon="bar-chart-2" label="Stats" active={active === 'stats'} onPress={() => onTab('stats')} />
+      <TabItem icon="calendar" label="Historique" active={active === 'history'} onPress={() => onTab('history')} />
+      <TabItem icon="settings" label="Réglages" active={active === 'settings'} onPress={() => onTab('settings')} />
     </View>
   );
 }
 
-function TabItem({ icon, label, active, onPress }: { icon: 'home' | 'bar-chart-2'; label: string; active: boolean; onPress: () => void }) {
+function TabItem({ icon, label, active, onPress }: { icon: IconName; label: string; active: boolean; onPress: () => void }) {
   const color = active ? colors.green : colors.textSecondary;
   return (
     <Pressable
@@ -50,13 +54,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: sizes.gutter,
+    paddingHorizontal: 8,
     backgroundColor: colors.bar,
     borderTopWidth: 1,
     borderTopColor: colors.cardBorder,
   },
-  tab: { minWidth: 64, minHeight: sizes.touch, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  tabLabel: { fontFamily: fonts.bodySemi, fontSize: 11 },
+  tab: { flex: 1, minHeight: sizes.touch, alignItems: 'center', justifyContent: 'center', gap: 4 },
+  tabLabel: { fontFamily: fonts.bodySemi, fontSize: 10.5 },
   fabRing: {
     width: ring,
     height: ring,

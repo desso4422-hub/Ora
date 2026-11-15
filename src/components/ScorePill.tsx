@@ -1,19 +1,20 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
 import type { Ratio } from '../stats';
-import { colors, radius, sizes, type } from '../theme';
+import { radius, scoreTone, sizes, type } from '../theme';
 
 type Props = { score: Ratio; isToday: boolean };
 
 export function ScorePill({ score, isToday }: Props) {
   const empty = score.scheduled === 0;
+  const tone = scoreTone(score.pct, empty);
   return (
     <View style={styles.wrap} accessible accessibilityLabel={
       empty ? 'Score 0 %, rien de prévu ce jour' : `Score ${score.pct} %, ${score.done} sur ${score.scheduled} habitudes faites`
     }>
-      <View style={styles.halo}>
-        <LinearGradient colors={[colors.greenBgFrom, colors.greenPillTo]} style={styles.pill}>
-          <Text style={type.score}>{score.pct}%</Text>
+      <View style={[styles.halo, { boxShadow: `0 0 ${sizes.scoreHalo}px ${tone.halo}` }]}>
+        <LinearGradient colors={[tone.from, tone.to]} style={[styles.pill, { borderColor: tone.main }]}>
+          <Text style={[type.score, { color: tone.main }]}>{score.pct}%</Text>
         </LinearGradient>
       </View>
       {empty ? (
@@ -30,16 +31,12 @@ export function ScorePill({ score, isToday }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', marginTop: 28 },
-  halo: {
-    borderRadius: radius.pill,
-    boxShadow: `0 0 ${sizes.scoreHalo}px ${colors.greenHalo}`,
-  },
+  halo: { borderRadius: radius.pill },
   pill: {
     width: sizes.scorePillW,
     height: sizes.scorePillH,
     borderRadius: radius.pill,
     borderWidth: 1.5,
-    borderColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

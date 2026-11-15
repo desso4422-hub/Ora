@@ -16,11 +16,10 @@ type Props = {
   selected: string;
   onSelect: (key: string) => void;
   onEdit: (h: Habit) => void;
-  onSettings: () => void;
   bottomPad: number;
 };
 
-export function DayScreen({ selected, onSelect, onEdit, onSettings, bottomPad }: Props) {
+export function DayScreen({ selected, onSelect, onEdit, bottomPad }: Props) {
   const { habits, data, today, now, toggle } = useStore();
   const { logs } = data;
 
@@ -56,7 +55,6 @@ export function DayScreen({ selected, onSelect, onEdit, onSettings, bottomPad }:
             <Flame size={16} />
             <Text style={styles.streakText}>{streak} {streak > 1 ? 'jours' : 'jour'}</Text>
           </View>
-          <IconButton icon="settings" label="Réglages" onPress={onSettings} color={colors.textSecondary} />
         </View>
       </View>
 
